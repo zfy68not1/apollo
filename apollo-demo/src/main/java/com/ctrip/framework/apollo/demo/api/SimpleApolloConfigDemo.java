@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.demo.api;
 
+import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.base.Charsets;
 
 import com.ctrip.framework.apollo.Config;
@@ -30,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -37,33 +40,45 @@ import java.io.InputStreamReader;
 public class SimpleApolloConfigDemo {
   private static final Logger logger = LoggerFactory.getLogger(SimpleApolloConfigDemo.class);
   private String DEFAULT_VALUE = "undefined";
-  private Config config;
 
-  public SimpleApolloConfigDemo() {
-    ConfigChangeListener changeListener = new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        logger.info("Changes for namespace {}", changeEvent.getNamespace());
-        for (String key : changeEvent.changedKeys()) {
-          ConfigChange change = changeEvent.getChange(key);
-          logger.info("Change - key: {}, oldValue: {}, newValue: {}, changeType: {}",
-              change.getPropertyName(), change.getOldValue(), change.getNewValue(),
-              change.getChangeType());
+  private Map<String, Config> nameSpaceConfig = new HashMap<>();
+  public SimpleApolloConfigDemo(String [] appIds) {
+    for (int i = 0; i < appIds.length; i++) {
+      ConfigChangeListener changeListener = new ConfigChangeListener() {
+        @Override
+        public void onChange(ConfigChangeEvent changeEvent) {
+          logger.info("Changes for namespace {}", changeEvent.getNamespace());
+          for (String key : changeEvent.changedKeys()) {
+            ConfigChange change = changeEvent.getChange(key);
+            logger.info("Change - key: {}, oldValue: {}, newValue: {}, changeType: {}",
+                    change.getPropertyName(), change.getOldValue(), change.getNewValue(),
+                    change.getChangeType());
+          }
         }
-      }
-    };
-    config = ConfigService.getAppConfig();
-    config.addChangeListener(changeListener);
+      };
+      String nameSpace = appIds[i];
+      Config config = ConfigService.getAppConfig(nameSpace);
+      config.addChangeListener(changeListener);
+      nameSpaceConfig.put(nameSpace, config);
+    }
   }
 
-  private String getConfig(String key) {
+  private String getConfig(String nameSpace,String key) {
+    Config config = nameSpaceConfig.get(nameSpace);
     String result = config.getProperty(key, DEFAULT_VALUE);
     logger.info(String.format("Loading key : %s with value: %s", key, result));
     return result;
   }
 
   public static void main(String[] args) throws IOException {
-    SimpleApolloConfigDemo apolloConfigDemo = new SimpleApolloConfigDemo();
+    String cluster = System.getProperty(ConfigConsts.APOLLO_CLUSTER_KEY);
+    String cluster1 = System.getProperty(ConfigConsts.APOLLO_CLUSTER_KEY);
+
+    for (int i = 0; i < args.length; i++) {
+      System.out.println(args[i]);
+    }
+    String[] split = args[0].split(",");
+    SimpleApolloConfigDemo apolloConfigDemo = new SimpleApolloConfigDemo(split);
     System.out.println(
         "Apollo Config Demo. Please input key to get the value. Input quit to exit.");
     while (true) {
@@ -76,7 +91,12 @@ public class SimpleApolloConfigDemo {
       if (input.equalsIgnoreCase("quit")) {
         System.exit(0);
       }
-      apolloConfigDemo.getConfig(input);
+      String[] values = input.split(":");
+      if (values.length != 2) {
+        System.out.println("Please input NameSpace+key to get the value. Input quit to exit.:例如[dpc_global_config:D_DATETIME_BEFORE_DAY]");
+        continue;
+      }
+      apolloConfigDemo.getConfig(values[0],values[1]);
     }
   }
 }

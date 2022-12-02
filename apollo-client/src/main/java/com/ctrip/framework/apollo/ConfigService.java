@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.internals.ConfigManager;
+import com.ctrip.framework.apollo.internals.DefaultConfigManager;
 import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.ConfigRegistry;
 
@@ -65,6 +66,10 @@ public class ConfigService {
    */
   public static Config getAppConfig() {
     return getConfig(ConfigConsts.NAMESPACE_APPLICATION);
+  }
+
+  public static Config getAppConfig(String nameSpace) {
+    return getConfig(nameSpace);
   }
 
   /**

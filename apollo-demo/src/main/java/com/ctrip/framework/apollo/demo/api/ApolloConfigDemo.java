@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.demo.api;
 
 import com.ctrip.framework.apollo.internals.YamlConfigFile;
+import com.ctrip.framework.apollo.openapi.client.ApolloOpenApiClient;
 import com.google.common.base.Charsets;
 
 import com.ctrip.framework.apollo.Config;
@@ -130,6 +131,18 @@ public class ApolloConfigDemo {
   }
 
   public static void main(String[] args) throws IOException {
+    String portalUrl = "http://localhost:8070"; // portal url
+    String token = "01ecf21b045047da9dd5a9d3ae4aa7e6"; // 申请的token
+    ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
+            .withPortalUrl(portalUrl)
+            .withToken(token)
+            .build();
+
+    client.getAllApps();
+    client.getNamespaces("CMADAAS", "DEV", "N2");
+    client.getNamespaces("CMADAAS", "DEV", "default");
+    System.out.println(client.getAllApps().size());
+    System.out.println(client.getToken());
     ApolloConfigDemo apolloConfigDemo = new ApolloConfigDemo();
     apolloConfigDemo.printEnvInfo();
     System.out.println(

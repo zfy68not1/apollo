@@ -51,10 +51,10 @@ public class SpringBootSampleApplication {
     System.out.println("SpringBootSampleApplication Demo. Input any key except quit to print the values. Input quit to exit.");
     while (true) {
       System.out.print("> ");
-      String input = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
+      /*String input = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
       if (!Strings.isNullOrEmpty(input) && input.trim().equalsIgnoreCase("quit")) {
         System.exit(0);
-      }
+      }*/
 
       System.out.println(annotatedBean.toString());
       if (redisConfig != null) {

@@ -19,4 +19,6 @@ apollo:
     eagerLoad:
       enabled: true
     # will inject 'application' and 'TEST1.apollo' namespaces in bootstrap phase
-    namespaces: application,TEST1.apollo,application.yaml
+    namespaces:
+    cluster: default                           #指定使用哪个集群的配置
+
